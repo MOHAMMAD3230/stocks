@@ -1,9 +1,10 @@
-const API_KEY = "30cbe4bc30msh5fdcf92c4fd37b1p1c022fjsncc0f1842bb0a";  // Replace with your RapidAPI key
+// === IMPORTANT: Insert your Yahoo Finance RapidAPI key here ===
+const API_KEY = "30cbe4bc30msh5fdcf92c4fd37b1p1c022fjsncc0f1842bb0a";
 const API_HOST = "yh-finance.p.rapidapi.com";
 
-let watchlist = [];  // Your stock symbols here
+let watchlist = [];  // Stock symbols you want
 
-// Elements
+// DOM elements
 const stockInput = document.getElementById("stockInput");
 const addStockBtn = document.getElementById("addStockBtn");
 const stocksTableBody = document.querySelector("#stocksTable tbody");
@@ -18,15 +19,15 @@ addStockBtn.addEventListener("click", () => {
   }
 });
 
-// Remove stock
+// Remove stock from watchlist
 function removeStock(symbol) {
   watchlist = watchlist.filter(s => s !== symbol);
   updateStocks();
 }
 
-// Fetch price for a symbol from Yahoo Finance RapidAPI
+// Fetch price for a given symbol using Yahoo Finance API via RapidAPI
 async function fetchPrice(symbol) {
-  const region = "US";  // For simplicity; can improve for markets
+  const region = "US"; // You can extend region detection if needed
   const url = `https://${API_HOST}/stock/v2/get-summary?symbol=${symbol}&region=${region}`;
   
   try {
@@ -39,6 +40,7 @@ async function fetchPrice(symbol) {
     });
     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
     const data = await res.json();
+    // Extract current market price if available
     return data.price?.regularMarketPrice?.raw ?? null;
   } catch (error) {
     console.error("Error fetching price for", symbol, error);
@@ -46,9 +48,9 @@ async function fetchPrice(symbol) {
   }
 }
 
-// Update the stocks table with live prices
+// Update the stocks table with the live prices
 async function updateStocks() {
-  stocksTableBody.innerHTML = "";
+  stocksTableBody.innerHTML = "";  // Clear table body
   for (const symbol of watchlist) {
     const price = await fetchPrice(symbol);
     const row = document.createElement("tr");
@@ -63,5 +65,5 @@ async function updateStocks() {
   }
 }
 
-// Initial call
+// Initial update call (if you want to preload some stocks, initialize watchlist)
 updateStocks();
