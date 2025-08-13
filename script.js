@@ -26,27 +26,34 @@ function removeStock(symbol) {
 }
 
 // Fetch price for a given symbol using Yahoo Finance API via RapidAPI
-async function fetchPrice(symbol) {
-  const region = "US"; // You can extend region detection if needed
-  const url = `https://${API_HOST}/stock/v2/get-summary?symbol=${symbol}&region=${region}`;
-  
-  try {
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        "X-RapidAPI-Key": API_KEY,
-        "X-RapidAPI-Host": API_HOST
-      }
-    });
-    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-    const data = await res.json();
-    // Extract current market price if available
-    return data.price?.regularMarketPrice?.raw ?? null;
-  } catch (error) {
-    console.error("Error fetching price for", symbol, error);
-    return null;
-  }
+async function fetchStockPrice(symbol) {
+    const region = getRegion(symbol);
+    const url = `https://yh-finance.p.rapidapi.com/stock/v2/get-summary?symbol=${symbol}&region=${region}`;
+
+    console.log(`🔍 [Frontend] Fetching price for ${symbol} | Region: ${region}`);
+    console.log(`[Frontend] API URL: ${url}`);
+
+    try {
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': 30cbe4bc30msh5fdcf92c4fd37b1p1c022fjsncc0f1842bb0a, // Must match your key at top of file
+                'X-RapidAPI-Host': 'yh-finance.p.rapidapi.com'
+            }
+        });
+
+        console.log(`[Frontend] HTTP Status: ${res.status}`);
+
+        const data = await res.json();
+        console.log(`[Frontend] API Response for ${symbol}:`, data);
+
+        return data?.price?.regularMarketPrice?.raw ?? null;
+    } catch (err) {
+        console.error(`[Frontend] ERROR fetching ${symbol}:`, err);
+        return null;
+    }
 }
+
 
 // Update the stocks table with the live prices
 async function updateStocks() {
