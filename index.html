@@ -2,56 +2,332 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Live Weather Lookup - OpenWeatherMap</title>
+  <title>Complete Weather Dashboard</title>
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #232946; color: #fff; margin: 0; min-height: 100vh; }
-    .weather-card {
-      background: #fff; color: #232946; max-width: 350px; margin: 60px auto; border-radius: 14px; box-shadow: 0 2px 12px #15172833; padding: 32px 28px;
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #232946;
+      color: #fff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      padding: 40px 20px;
     }
-    .weather-card h2 { margin-top: 0; }
-    .weather-card input[type="text"] { width: 80%; padding: 9px 11px; border-radius: 6px; border: 1px solid #bbb; margin-bottom: 14px; }
-    .weather-card button { background: #232946; color: #fff; border: none; border-radius: 6px; padding: 9px 14px; cursor: pointer; }
-    #result { margin-top: 18px; }
-    .label { font-weight: 500; color: #44318d; }
+    .weather-card {
+      background: #fff;
+      color: #232946;
+      max-width: 480px;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px #15172833;
+      padding: 32px 28px;
+      width: 100%;
+    }
+    input[type="text"] {
+      width: 67%;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid #bbb;
+      margin-bottom: 14px;
+      font-size: 16px;
+    }
+    button {
+      background: #232946;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 18px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-left: 8px;
+    }
+    #result, #forecast {
+      margin-top: 24px;
+    }
+    .label {
+      font-weight: 600;
+      color: #44318d;
+    }
+    .weather-icon {
+      vertical-align: middle;
+      width: 48px;
+      height: 48px;
+      margin-left: 10px;
+    }
+    .widget-row {
+      margin: 10px 0;
+    }
+    .progress-bar {
+      height: 14px;
+      border-radius: 7px;
+      background: #ccc;
+      overflow: hidden;
+      width: 100%;
+      margin-top: 4px;
+    }
+    .progress-fill {
+      background: #44318d;
+      height: 100%;
+      width: 0;
+      border-radius: 7px;
+      transition: width 0.5s ease-in-out;
+    }
+    .error {
+      color: #cc0000;
+      font-weight: 700;
+      margin-top: 20px;
+      font-size: 1.1rem;
+    }
+    h3 {
+      border-bottom: 1px solid #44318d;
+      padding-bottom: 6px;
+    }
+    canvas {
+      margin-top: 24px;
+      width: 100% !important;
+      height: 270px !important;
+      background: #fafafa;
+      border-radius: 8px;
+    }
+    .forecast-day {
+      border: 1px solid #44318d;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .forecast-date {
+      font-weight: 700;
+      flex: 2;
+    }
+    .forecast-temp {
+      flex: 1;
+      text-align: center;
+    }
+    .forecast-weather {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
   </style>
+
+  <!-- Chart.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="weather-card">
-    <h2>Weather Search</h2>
+    <h2>Complete Weather Dashboard</h2>
     <input type="text" id="cityInput" placeholder="Enter city (e.g. Mumbai)" />
     <button onclick="getWeather()">Get Weather</button>
+
     <div id="result">Enter a city and press the button.</div>
+    <div id="forecast"></div>
+    <canvas id="forecastChart"></canvas>
   </div>
 
   <script>
-    function getWeather() {
-      const city = document.getElementById('cityInput').value || 'Hyderabad';
-      const resultDiv = document.getElementById('result');
-      resultDiv.textContent = 'Loading...';
+    const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your actual OpenWeatherMap API key
+    let chartInstance = null;
 
-      const apiKey = '733ec5a871dceb31719ab4f3bebf65de';  // Replace with your actual API key
+    function getWeather() {
+      const city = document.getElementById('cityInput').value.trim();
+      const resultDiv = document.getElementById('result');
+      const forecastDiv = document.getElementById('forecast');
+
+      if (!city) {
+        resultDiv.innerHTML = '<div class="error">Please enter a city name.</div>';
+        forecastDiv.innerHTML = '';
+        clearChart();
+        return;
+      }
+
+      resultDiv.textContent = 'Loading...';
+      forecastDiv.innerHTML = '';
+      clearChart();
+
       const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&appid=${apiKey}`;
 
       fetch(url)
         .then(response => {
           if (!response.ok) {
-            throw new Error('City not found or other error');
+            if (response.status === 404) {
+              throw new Error('City not found. Please check the spelling.');
+            } else if (response.status === 401) {
+              throw new Error('Invalid API key. Please check your credentials.');
+            } else if (response.status === 429) {
+              throw new Error('API rate limit exceeded. Please try again later.');
+            } else {
+              throw new Error(`Server error: ${response.statusText} (${response.status})`);
+            }
           }
           return response.json();
         })
         .then(data => {
-          // Display relevant weather data
-          resultDiv.innerHTML = `
-            <span class="label">City:</span> ${data.name}<br>
-            <span class="label">Temperature:</span> ${data.main.temp} °C<br>
-            <span class="label">Weather:</span> ${data.weather[0].description}<br>
-            <span class="label">Humidity:</span> ${data.main.humidity} %<br>
-            <span class="label">Wind Speed:</span> ${data.wind.speed} m/s<br>
-          `;
+          displayCurrentWeather(data);
+          getForecast(data.coord.lat, data.coord.lon);
         })
         .catch(error => {
-          resultDiv.textContent = error.message;
+          resultDiv.innerHTML = `<div class="error">${error.message}</div>`;
+          forecastDiv.innerHTML = '';
         });
+    }
+
+    function displayCurrentWeather(data) {
+      const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
+      const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString();
+      const resultDiv = document.getElementById('result');
+
+      resultDiv.innerHTML = `
+        <div class="widget-row">
+          <span class="label">City:</span> ${data.name}
+          <img class="weather-icon" src="<https://openweathermap.org/img/wn/${data.weather>[0].icon}@2x.png" alt="${data.weather[0].description}" title="${data.weather[0].description}"/>
+        </div>
+        <div class="widget-row">
+          <span class="label">Temperature:</span> ${data.main.temp} °C
+        </div>
+        <div class="widget-row">
+          <span class="label">Feels Like:</span> ${data.main.feels_like} °C
+        </div>
+        <div class="widget-row">
+          <span class="label">Weather:</span> ${data.weather[0].description}
+        </div>
+        <div class="widget-row">
+          <span class="label">Humidity:</span> ${data.main.humidity} %
+          <div class="progress-bar"><div class="progress-fill" style="width:${data.main.humidity}%"></div></div>
+        </div>
+        <div class="widget-row">
+          <span class="label">Pressure:</span> ${data.main.pressure} hPa
+        </div>
+        <div class="widget-row">
+          <span class="label">Visibility:</span> ${(data.visibility / 1000).toFixed(1)} km
+        </div>
+        <div class="widget-row">
+          <span class="label">Wind Speed:</span> ${data.wind.speed} m/s
+        </div>
+        <div class="widget-row">
+          <span class="label">Wind Direction:</span> ${data.wind.deg}°
+        </div>
+        <div class="widget-row">
+          <span class="label">Sunrise:</span> ${sunrise}
+        </div>
+        <div class="widget-row">
+          <span class="label">Sunset:</span> ${sunset}
+        </div>
+      `;
+    }
+
+    function getForecast(lat, lon) {
+      const forecastDiv = document.getElementById('forecast');
+      const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch forecast');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Aggregate daily forecasts
+          const days = {};
+          data.list.forEach(item => {
+            const date = item.dt_txt.split(' ')[0];
+            if (!days[date]) {
+              days[date] = [];
+            }
+            days[date].push(item);
+          });
+
+          // Create daily summaries
+          const dailySummaries = Object.keys(days).map(date => {
+            const temps = days[date].map(x => x.main.temp);
+            const minTemp = Math.min(...temps);
+            const maxTemp = Math.max(...temps);
+            const weather = days[date][0].weather[0];
+            return { date, minTemp, maxTemp, weather };
+          });
+
+          // Show forecast widgets
+          forecastDiv.innerHTML = '<h3>5-Day Forecast</h3>';
+          dailySummaries.forEach(day => {
+            forecastDiv.innerHTML += `
+              <div class="forecast-day">
+                <div class="forecast-date">${day.date}</div>
+                <div class="forecast-temp">${day.minTemp.toFixed(1)}°C - ${day.maxTemp.toFixed(1)}°C</div>
+                <div class="forecast-weather">
+                  <img src="https://openweathermap.org/img/wn/${day.weather.icon}@2x.png" alt="${day.weather.description}" title="${day.weather.description}" />
+                  <span style="margin-left:8px;">${day.weather.main}</span>
+                </div>
+              </div>
+            `;
+          });
+
+          // Render the forecast chart
+          renderChart(
+            dailySummaries.map(d => d.date),
+            dailySummaries.map(d => d.maxTemp),
+            dailySummaries.map(d => d.minTemp)
+          );
+        })
+        .catch(() => {
+          forecastDiv.innerHTML = '<div class="error">Error fetching forecast data</div>';
+        });
+    }
+
+    function clearChart() {
+      if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+      }
+    }
+
+    function renderChart(labels, maxTemps, minTemps) {
+      clearChart();
+      const ctx = document.getElementById('forecastChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Max Temp (°C)',
+              data: maxTemps,
+              borderColor: '#44318d',
+              backgroundColor: 'rgba(68,49,141,0.2)',
+              fill: true,
+              tension: 0.3,
+            },
+            {
+              label: 'Min Temp (°C)',
+              data: minTemps,
+              borderColor: '#2663a4',
+              backgroundColor: 'rgba(38,99,164,0.2)',
+              fill: true,
+              tension: 0.3,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          stacked: false,
+          plugins: {
+            legend: { position: 'top' },
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+            },
+          },
+        },
+      });
     }
   </script>
 </body>
