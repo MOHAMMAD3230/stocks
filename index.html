@@ -3,26 +3,45 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Live Stock Market Tracker</title>
-<link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <h1>Live Stock Market Tracker</h1>
-  <div id="watchlist-controls">
-    <input type="text" id="stockInput" placeholder="Enter stock symbol (e.g. AAPL)" />
-    <button id="addStockBtn">Add Stock</button>
-  </div>
-  <table id="stocksTable">
-    <thead>
-      <tr>
-        <th>Symbol</th>
-        <th>Price</th>
-        <th>Remove</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+<title>Testing</title>
 
-  <script src="script.js"></script>
+</head>
+  <style>
+.myDiv {
+  border: 2px outset red;
+  background-color: lightblue;
+  text-align: center;
+}
+</style>
+<body>
+  <h1>Testingr</h1>
+
+  <div class="myDiv" >
+<a href="https://open-weather13.p.rapidapi.com/city?city=hyderabad&lang=EN">Weather</a>
+    
+  </div>
+
+  <script>
+
+    const data = null;
+
+const xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener('readystatechange', function () {
+	if (this.readyState === this.DONE) {
+		console.log(this.responseText);
+	}
+});
+
+xhr.open('GET', 'https://open-weather13.p.rapidapi.com/city?city=hyderabad&lang=EN');
+xhr.setRequestHeader('x-rapidapi-key', '30cbe4bc30msh5fdcf92c4fd37b1p1c022fjsncc0f1842bb0a');
+xhr.setRequestHeader('x-rapidapi-host', 'open-weather13.p.rapidapi.com');
+
+xhr.send(data);
+  </script>
+ 
 </body>
+
+  
 </html>
