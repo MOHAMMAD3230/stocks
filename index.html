@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Live Weather Lookup</title>
+  <title>Live Weather Lookup - OpenWeatherMap</title>
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #232946; color: #fff; margin: 0; min-height: 100vh; }
     .weather-card {
@@ -22,37 +22,36 @@
     <button onclick="getWeather()">Get Weather</button>
     <div id="result">Enter a city and press the button.</div>
   </div>
+
   <script>
     function getWeather() {
       const city = document.getElementById('cityInput').value || 'Hyderabad';
       const resultDiv = document.getElementById('result');
       resultDiv.textContent = 'Loading...';
 
-      const data = null;
-      const xhr = new XMLHttpRequest();
-      xhr.withCredentials = true;
+      const apiKey = 'YOUR_OPENWEATHERMAP_API_KEY';  // Replace with your actual API key
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&appid=${apiKey}`;
 
-      xhr.addEventListener('readystatechange', function () {
-        if (this.readyState === this.DONE) {
-          try {
-            const weather = JSON.parse(this.responseText);
-            resultDiv.innerHTML = `
-              <span class="label">City:</span> ${weather.name || city}<br>
-              <span class="label">Temperature:</span> ${weather.main && weather.main.temp ? weather.main.temp + '°C' : 'N/A'}<br>
-              <span class="label">Weather:</span> ${weather.weather && weather.weather[0] ? weather.weather[0].description : 'N/A'}<br>
-              <span class="label">Humidity:</span> ${weather.main && weather.main.humidity ? weather.main.humidity + '%' : 'N/A'}<br>
-              <span class="label">Wind Speed:</span> ${weather.wind && weather.wind.speed ? weather.wind.speed + ' m/s' : 'N/A'}<br>
-            `;
-          } catch (e) {
-            resultDiv.textContent = 'Could not parse response: ' + this.responseText;
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('City not found or other error');
           }
-        }
-      });
-
-      xhr.open('GET', `https://open-weather13.p.rapidapi.com/city?city=${encodeURIComponent(city)}&lang=EN`);
-      xhr.setRequestHeader('x-rapidapi-key', '30cbe4bc30msh5fdcf92c4fd37b1p1c022fjsncc0f1842bb0a');
-      xhr.setRequestHeader('x-rapidapi-host', 'open-weather13.p.rapidapi.com');
-      xhr.send(data);
+          return response.json();
+        })
+        .then(data => {
+          // Display relevant weather data
+          resultDiv.innerHTML = `
+            <span class="label">City:</span> ${data.name}<br>
+            <span class="label">Temperature:</span> ${data.main.temp} °C<br>
+            <span class="label">Weather:</span> ${data.weather[0].description}<br>
+            <span class="label">Humidity:</span> ${data.main.humidity} %<br>
+            <span class="label">Wind Speed:</span> ${data.wind.speed} m/s<br>
+          `;
+        })
+        .catch(error => {
+          resultDiv.textContent = error.message;
+        });
     }
   </script>
 </body>
