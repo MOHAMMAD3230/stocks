@@ -2,136 +2,163 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Complete Weather Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Responsive Weather Dashboard</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #232946;
-      color: #fff;
-      margin: 0;
-      min-height: 100vh;
+    html, body {
+      height: 100%;
+      margin: 0; padding: 0;
+      background: #22294d;
       display: flex;
+      align-items: center;
       justify-content: center;
-      align-items: start;
-      padding: 40px 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
     }
     .weather-card {
-      background: #fff;
-      color: #232946;
-      max-width: 480px;
-      border-radius: 14px;
-      box-shadow: 0 2px 12px #15172833;
-      padding: 32px 28px;
-      width: 100%;
+      background: #2f365f;
+      border-radius: 20px;
+      max-width: 580px;
+      width: 90vw;
+      padding: 30px 25px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
     }
     input[type="text"] {
-      width: 67%;
-      padding: 10px 14px;
-      border-radius: 6px;
-      border: 1px solid #bbb;
-      margin-bottom: 14px;
+      border-radius: 10px;
+      border: none;
+      padding: 12px 16px;
       font-size: 16px;
+      width: 70%;
+      outline: none;
     }
     button {
-      background: #232946;
-      color: #fff;
+      background-color: #4b6cb7;
       border: none;
-      border-radius: 6px;
-      padding: 10px 18px;
+      border-radius: 10px;
+      color: #eef1f5;
       cursor: pointer;
       font-size: 16px;
-      margin-left: 8px;
+      margin-left: 12px;
+      padding: 12px 20px;
+      transition: background 0.3s ease;
     }
-    #result, #forecast {
-      margin-top: 24px;
+    button:hover {
+      background-color: #182848;
     }
-    .label {
-      font-weight: 600;
-      color: #44318d;
-    }
-    .weather-icon {
-      vertical-align: middle;
-      width: 48px;
-      height: 48px;
-      margin-left: 10px;
-    }
-    .widget-row {
-      margin: 10px 0;
-    }
-    .progress-bar {
-      height: 14px;
-      border-radius: 7px;
-      background: #ccc;
-      overflow: hidden;
-      width: 100%;
-      margin-top: 4px;
-    }
-    .progress-fill {
-      background: #44318d;
-      height: 100%;
-      width: 0;
-      border-radius: 7px;
-      transition: width 0.5s ease-in-out;
-    }
-    .error {
-      color: #cc0000;
+    h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
       font-weight: 700;
-      margin-top: 20px;
-      font-size: 1.1rem;
-    }
-    h3 {
-      border-bottom: 1px solid #44318d;
-      padding-bottom: 6px;
-    }
-    canvas {
-      margin-top: 24px;
-      width: 100% !important;
-      height: 270px !important;
-      background: #fafafa;
-      border-radius: 8px;
-    }
-    .forecast-day {
-      border: 1px solid #44318d;
-      padding: 10px;
-      margin-bottom: 8px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .forecast-date {
-      font-weight: 700;
-      flex: 2;
-    }
-    .forecast-temp {
-      flex: 1;
       text-align: center;
     }
+    #result, #forecast {
+      margin-top: 26px;
+    }
+    h3 {
+      border-bottom: 2px solid #6c7a97;
+      padding-bottom: 8px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .panel {
+      border-radius: 15px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.38);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      color: #fff;
+    }
+    .panel-row {
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      font-size: 1rem;
+    }
+    #forecast {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .forecast-day {
+      padding: 14px 18px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.26);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
     .forecast-weather {
-      flex: 1;
+      font-size: 26px;
       display: flex;
       align-items: center;
+      gap: 12px;
+      min-width: 120px;
       justify-content: flex-end;
     }
+    canvas {
+      margin-top: 30px;
+      border-radius: 14px;
+      background-color: #f0f4ff;
+      box-shadow: 0 4px 24px rgba(34,57,131,0.3);
+      width: 100% !important;
+      height: 280px !important;
+    }
+    .error {
+      color: #f44336;
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin: 28px 0;
+      text-align: center;
+    }
+    .input-group {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
   </style>
-
-  <!-- Chart.js library -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="weather-card">
-    <h2>Complete Weather Dashboard</h2>
-    <input type="text" id="cityInput" placeholder="Enter city (e.g. Mumbai)" />
-    <button onclick="getWeather()">Get Weather</button>
-
-    <div id="result">Enter a city and press the button.</div>
+    <h2>Responsive Weather Dashboard</h2>
+    <div class="input-group">
+      <input type="text" id="cityInput" placeholder="Enter city (e.g. Mumbai)" />
+      <button onclick="getWeather()">Get Weather</button>
+    </div>
+    <div id="result"></div>
     <div id="forecast"></div>
     <canvas id="forecastChart"></canvas>
   </div>
 
   <script>
-    const apiKey = '733ec5a871dceb31719ab4f3bebf65de'; // Replace with your actual OpenWeatherMap API key
+    const apiKey = '733ec5a871dceb31719ab4f3bebf65de'; // Replace with your actual API key
     let chartInstance = null;
+
+    const weatherStyles = {
+      clear: { color: '#4a90e2', icon: '☀️' },
+      clouds: { color: '#6c769c', icon: '☁️' },
+      rain: { color: '#34699a', icon: '🌧️' },
+      drizzle: { color: '#4a7ca8', icon: '🌦️' },
+      thunderstorm: { color: '#2f3e66', icon: '⛈️' },
+      snow: { color: '#a9c9ff', icon: '❄️' },
+      mist: { color: '#7f8fa4', icon: '🌫️' },
+      haze: { color: '#aab7c4', icon: '🌁' },
+      fog: { color: '#aab7c4', icon: '🌁' },
+      smoke: { color: '#7f8fa4', icon: '💨' },
+      dust: { color: '#c9b18f', icon: '🌪️' },
+      sand: { color: '#c9b18f', icon: '🏜️' },
+      ash: { color: '#a29b98', icon: '🌋' },
+      squall: { color: '#2f3e66', icon: '🌬️' },
+      tornado: { color: '#2f3e66', icon: '🌪️' }
+    };
 
     function getWeather() {
       const city = document.getElementById('cityInput').value.trim();
@@ -139,110 +166,75 @@
       const forecastDiv = document.getElementById('forecast');
 
       if (!city) {
-        resultDiv.innerHTML = '<div class="error">Please enter a city name.</div>';
-        forecastDiv.innerHTML = '';
-        clearChart();
+        showError('Please enter a city name.');
         return;
       }
 
-      resultDiv.textContent = 'Loading...';
+      clearError();
+      resultDiv.innerHTML = 'Loading...';
       forecastDiv.innerHTML = '';
       clearChart();
 
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&appid=${apiKey}`;
-
-      fetch(url)
-        .then(response => {
-          if (!response.ok) {
-            if (response.status === 404) {
-              throw new Error('City not found. Please check the spelling.');
-            } else if (response.status === 401) {
-              throw new Error('Invalid API key. Please check your credentials.');
-            } else if (response.status === 429) {
-              throw new Error('API rate limit exceeded. Please try again later.');
-            } else {
-              throw new Error(`Server error: ${response.statusText} (${response.status})`);
-            }
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&appid=${apiKey}`)
+        .then(res => {
+          if (!res.ok) {
+            if (res.status === 404) throw new Error('City not found. Check spelling.');
+            if (res.status === 401) throw new Error('Invalid API key.');
+            if (res.status === 429) throw new Error('API rate limit exceeded.');
+            throw new Error(`Server error: ${res.statusText} (${res.status})`);
           }
-          return response.json();
+          return res.json();
         })
         .then(data => {
           displayCurrentWeather(data);
           getForecast(data.coord.lat, data.coord.lon);
         })
-        .catch(error => {
-          resultDiv.innerHTML = `<div class="error">${error.message}</div>`;
-          forecastDiv.innerHTML = '';
+        .catch(err => {
+          showError(err.message);
         });
     }
 
     function displayCurrentWeather(data) {
       const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
       const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString();
-      const resultDiv = document.getElementById('result');
+      const mainWeather = data.weather[0].main.toLowerCase();
 
+      let { color, icon } = weatherStyles[mainWeather] || { color: '#556888', icon: '❔' };
+
+      const resultDiv = document.getElementById('result');
       resultDiv.innerHTML = `
-        <div class="widget-row">
-          <span class="label">City:</span> ${data.name}
-          <img class="weather-icon" src="<https://openweathermap.org/img/wn/${data.weather>[0].icon}@2x.png" alt="${data.weather[0].description}" title="${data.weather[0].description}"/>
-        </div>
-        <div class="widget-row">
-          <span class="label">Temperature:</span> ${data.main.temp} °C
-        </div>
-        <div class="widget-row">
-          <span class="label">Feels Like:</span> ${data.main.feels_like} °C
-        </div>
-        <div class="widget-row">
-          <span class="label">Weather:</span> ${data.weather[0].description}
-        </div>
-        <div class="widget-row">
-          <span class="label">Humidity:</span> ${data.main.humidity} %
-          <div class="progress-bar"><div class="progress-fill" style="width:${data.main.humidity}%"></div></div>
-        </div>
-        <div class="widget-row">
-          <span class="label">Pressure:</span> ${data.main.pressure} hPa
-        </div>
-        <div class="widget-row">
-          <span class="label">Visibility:</span> ${(data.visibility / 1000).toFixed(1)} km
-        </div>
-        <div class="widget-row">
-          <span class="label">Wind Speed:</span> ${data.wind.speed} m/s
-        </div>
-        <div class="widget-row">
-          <span class="label">Wind Direction:</span> ${data.wind.deg}°
-        </div>
-        <div class="widget-row">
-          <span class="label">Sunrise:</span> ${sunrise}
-        </div>
-        <div class="widget-row">
-          <span class="label">Sunset:</span> ${sunset}
+        <div class="panel current-weather" style="background-color:${color}; color:#fff;">
+          <div class="panel-row"><span>City:</span><strong>${data.name} ${icon}</strong></div>
+          <div class="panel-row"><span>Temperature:</span><strong>${data.main.temp} °C</strong></div>
+          <div class="panel-row"><span>Feels Like:</span><strong>${data.main.feels_like} °C</strong></div>
+          <div class="panel-row"><span>Condition:</span><strong style="text-transform: capitalize;">${data.weather[0].description}</strong></div>
+          <div class="panel-row"><span>Humidity:</span><strong>${data.main.humidity} %</strong></div>
+          <div class="panel-row"><span>Pressure:</span><strong>${data.main.pressure} hPa</strong></div>
+          <div class="panel-row"><span>Visibility:</span><strong>${(data.visibility / 1000).toFixed(1)} km</strong></div>
+          <div class="panel-row"><span>Wind Speed:</span><strong>${data.wind.speed} m/s</strong></div>
+          <div class="panel-row"><span>Wind Direction:</span><strong>${data.wind.deg}°</strong></div>
+          <div class="panel-row"><span>Sunrise:</span><strong>${sunrise}</strong></div>
+          <div class="panel-row"><span>Sunset:</span><strong>${sunset}</strong></div>
         </div>
       `;
     }
 
     function getForecast(lat, lon) {
       const forecastDiv = document.getElementById('forecast');
-      const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
 
-      fetch(apiUrl)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Failed to fetch forecast');
-          }
-          return response.json();
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch forecast');
+          return res.json();
         })
         .then(data => {
-          // Aggregate daily forecasts
           const days = {};
           data.list.forEach(item => {
             const date = item.dt_txt.split(' ')[0];
-            if (!days[date]) {
-              days[date] = [];
-            }
+            if (!days[date]) days[date] = [];
             days[date].push(item);
           });
 
-          // Create daily summaries
           const dailySummaries = Object.keys(days).map(date => {
             const temps = days[date].map(x => x.main.temp);
             const minTemp = Math.min(...temps);
@@ -251,22 +243,18 @@
             return { date, minTemp, maxTemp, weather };
           });
 
-          // Show forecast widgets
           forecastDiv.innerHTML = '<h3>5-Day Forecast</h3>';
           dailySummaries.forEach(day => {
+            let { color, icon } = weatherStyles[day.weather.main.toLowerCase()] || { color: '#556888', icon: '❔' };
             forecastDiv.innerHTML += `
-              <div class="forecast-day">
-                <div class="forecast-date">${day.date}</div>
-                <div class="forecast-temp">${day.minTemp.toFixed(1)}°C - ${day.maxTemp.toFixed(1)}°C</div>
-                <div class="forecast-weather">
-                  <img src="https://openweathermap.org/img/wn/${day.weather.icon}@2x.png" alt="${day.weather.description}" title="${day.weather.description}" />
-                  <span style="margin-left:8px;">${day.weather.main}</span>
-                </div>
+              <div class="forecast-day" style="background-color:${color}; color:#fff;">
+                <div>${day.date}</div>
+                <div>${day.minTemp.toFixed(1)}°C - ${day.maxTemp.toFixed(1)}°C</div>
+                <div class="forecast-weather">${icon} <span style="margin-left:8px;">${day.weather.main}</span></div>
               </div>
             `;
           });
 
-          // Render the forecast chart
           renderChart(
             dailySummaries.map(d => d.date),
             dailySummaries.map(d => d.maxTemp),
@@ -274,7 +262,7 @@
           );
         })
         .catch(() => {
-          forecastDiv.innerHTML = '<div class="error">Error fetching forecast data</div>';
+          document.getElementById('forecast').innerHTML = '<div class="error">Error fetching forecast data</div>';
         });
     }
 
@@ -297,7 +285,7 @@
               label: 'Max Temp (°C)',
               data: maxTemps,
               borderColor: '#44318d',
-              backgroundColor: 'rgba(68,49,141,0.2)',
+              backgroundColor: 'rgba(68,49,141,0.3)',
               fill: true,
               tension: 0.3,
             },
@@ -305,7 +293,7 @@
               label: 'Min Temp (°C)',
               data: minTemps,
               borderColor: '#2663a4',
-              backgroundColor: 'rgba(38,99,164,0.2)',
+              backgroundColor: 'rgba(38,99,164,0.3)',
               fill: true,
               tension: 0.3,
             },
@@ -322,12 +310,20 @@
             legend: { position: 'top' },
           },
           scales: {
-            y: {
-              beginAtZero: false,
-            },
+            y: { beginAtZero: false },
           },
         },
       });
+    }
+
+    function showError(msg) {
+      document.getElementById('result').innerHTML = `<div class="error">${msg}</div>`;
+      document.getElementById('forecast').innerHTML = '';
+      clearChart();
+    }
+
+    function clearError() {
+      document.getElementById('result').innerHTML = '';
     }
   </script>
 </body>
